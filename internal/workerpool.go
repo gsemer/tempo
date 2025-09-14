@@ -22,9 +22,13 @@ func NewWorkerPool(workers int, jobs chan domain.Job, wg *sync.WaitGroup) *Worke
 
 func (wp *WorkerPool) worker(i int) {
 	for job := range wp.jobs {
-		fmt.Printf("Worker %d processes the job", i)
-		_ = job.Process()
-		wp.wg.Done()
+		fmt.Printf("Worker %d processes the job %v\n", i, job.ID())
+		err := job.Process()
+		if err != nil {
+			wp.Submit(job)
+		} else {
+			wp.wg.Done()
+		}
 	}
 }
 

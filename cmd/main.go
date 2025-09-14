@@ -10,6 +10,7 @@ import (
 	"tempo/domain"
 	"tempo/internal"
 
+	"github.com/google/uuid"
 	"github.com/robfig/cron/v3"
 )
 
@@ -24,7 +25,12 @@ func main() {
 	cr := cron.New(cron.WithSeconds())
 	scheduler := internal.NewScheduler(cr, workerPool)
 
-	_, err := scheduler.PeriodicJob("0 * * * * *", &app.PrintJob{})
+	_, err := scheduler.PeriodicJob("0 * * * * *", func() domain.Job {
+		return &app.PrintJob{
+			Id:    uuid.New(),
+			Type_: "print_job",
+		}
+	})
 	if err != nil {
 		log.Fatal("failed to schedule job:", err)
 	}

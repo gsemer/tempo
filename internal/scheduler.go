@@ -19,10 +19,11 @@ func NewScheduler(cron *cron.Cron, wp *WorkerPool) *Scheduler {
 	}
 }
 
-func (s *Scheduler) PeriodicJob(crontab string, job domain.Job) (cron.EntryID, error) {
+func (s *Scheduler) PeriodicJob(crontab string, factory func() domain.Job) (cron.EntryID, error) {
 	return s.cron.AddFunc(
 		crontab,
 		func() {
+			job := factory()
 			s.wp.Submit(job)
 		},
 	)
